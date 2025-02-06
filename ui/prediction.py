@@ -10,8 +10,7 @@ import matplotlib.font_manager as fm
 
 @st.cache_data
 def fontRegistered():
-    st.cache_data.clear()
-    font_dirs = [os.getcwd() + '/custom_fonts']
+    font_dirs = [os.getcwd() + '/font']
     font_files = fm.findSystemFonts(fontpaths=font_dirs)
     for font_file in font_files:
         fm.fontManager.addfont(font_file)
