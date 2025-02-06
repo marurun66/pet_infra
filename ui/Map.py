@@ -10,7 +10,7 @@ import json
 def run_map():
 
 
-    # 📌 데이터 불러오기
+    # 데이터 불러오기
     pet_data = pd.read_csv("data/pet_data.csv")
     hospital_data = pd.read_csv("data/hospitals.csv")
     pharmacy_data = pd.read_csv("data/pharmacies.csv")
@@ -18,27 +18,27 @@ def run_map():
     with open("data/seongnam_geo.json", encoding="utf-8") as f:
         geo_json = json.load(f)
 
-    # 📌 Streamlit 사이드바 구성
+    # Streamlit 사이드바 구성
     st.sidebar.title("📍 성남시 반려동물 & 동물병원/약국 분석")
 
-    # 🔹 사용자 선택 옵션 (구 선택)
+    # 구 선택
     selected_gu = st.sidebar.selectbox("구 선택", ["전체"] + list(pet_data["구별"].unique()))
 
-    # 🔹 선택된 구에 따라 동 선택 목록 업데이트
+    # 선택된 구에 따라 동 선택 목록 업데이트
     if selected_gu == "전체":
         available_dongs = list(pet_data["동별"].unique())  # 모든 동 포함
     else:
         available_dongs = list(pet_data[pet_data["구별"] == selected_gu]["동별"].unique())  # 선택된 구에 속한 동만 포함
 
-    # 🔹 동 선택 옵션 (선택된 구의 동만 표시)
+    # 동 선택 
     selected_dong = st.sidebar.selectbox("동 선택", ["전체"] + available_dongs)
 
-    # 🔹 병원/약국 필터링 체크박스 추가
+    # 병원/약국 필터링 체크박스 추가
     show_hospitals = st.sidebar.checkbox("병원 보기", value=True)
     show_pharmacies = st.sidebar.checkbox("약국 보기", value=True)
 
-    # 📌 구/동 선택 시 지도 중심 이동 기능
-    # 🔹 구별 또는 동별 중심 좌표 찾기
+    # 구/동 선택 시 지도 중심 이동 기능
+    # 구별 또는 동별 중심 좌표 찾기
     def get_center_coordinates(selected_gu, selected_dong):
         if selected_dong != "전체":
             subset = hospital_data[hospital_data["동별"] == selected_dong]
@@ -56,7 +56,7 @@ def run_map():
         
         return 37.4200, 127.1265  # 기본 성남시 중심 좌표
     
-    # 📌 선택된 구/동에 따라 지도 확대
+    # 선택된 구/동에 따라 지도 확대
     def get_zoom_level(selected_gu, selected_dong):
         if selected_dong != "전체":
             return 14  # ✅ 동을 선택하면 더 확대
@@ -65,7 +65,7 @@ def run_map():
         else:
             return 11  # 기본 성남시 전체 확대
 
-    # 🔹 데이터 필터링 (사용자가 선택한 구·동별 데이터만 표시)
+    # 데이터 필터링 (사용자가 선택한 구·동별 데이터만 표시)
     filtered_hospital_data = hospital_data.copy()
     filtered_pharmacy_data = pharmacy_data.copy()
 
@@ -79,12 +79,12 @@ def run_map():
         filtered_hospital_data = filtered_hospital_data[filtered_hospital_data["동별"] == selected_dong]
         filtered_pharmacy_data = filtered_pharmacy_data[filtered_pharmacy_data["동별"] == selected_dong]
 
-    # 📌 지도 중심 좌표 설정 (선택한 구/동에 따라 이동)
+    # 지도 중심 좌표 설정 (선택한 구/동에 따라 이동)
     center_lat, center_lon = get_center_coordinates(selected_gu, selected_dong)
     zoom_level = get_zoom_level(selected_gu, selected_dong)
     m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom_level, tiles="cartodb positron")
 
-    # 📌 Choropleth Map: 반려동물 수 히트맵 (GeoJSON의 'dong_name' 속성 활용)
+    # 반려동물 수 히트맵 (GeoJSON의 'dong_name' 속성 활용)
     choropleth = folium.Choropleth(
         geo_data=geo_json,
         name="반려동물 등록 수",
@@ -97,7 +97,7 @@ def run_map():
         legend_name="반려동물 등록 수"
     ).add_to(m)
 
-    # 📌 동 이름 및 반려동물 수 팝업으로 표시
+    # 동 이름 및 반려동물 수 팝업으로 표시
     for feature in geo_json["features"]:
         coords = feature["geometry"]["coordinates"][0][0]
         avg_lat = sum([c[1] for c in coords]) / len(coords)
@@ -111,7 +111,7 @@ def run_map():
             icon=folium.DivIcon(html=f'<div style="font-size: 10pt; color: black; font-weight: bold; white-space: nowrap;">{dong_name}</div>')
         ).add_to(m)
 
-    # 📌 병원/약국 마커 추가 (체크박스 선택 여부에 따라 표시)
+    # 병원/약국 마커 추가 (체크박스 선택 여부에 따라 표시)
     if show_hospitals:
         for _, row in filtered_hospital_data.iterrows():
             folium.Marker(
@@ -130,7 +130,7 @@ def run_map():
                 icon=folium.Icon(color="green", icon="medkit")
             ).add_to(m)
 
-    # 📌 Streamlit에서 지도 표시
+    # Streamlit에서 지도 표시
     st.subheader("🗺️ 지도에서 확인하기")
     st.markdown(
     """
