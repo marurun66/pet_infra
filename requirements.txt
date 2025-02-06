@@ -5,3 +5,6 @@ folium
 streamlit_folium
 scikit-learn
 matplotlib
+os
+numpy
+statsmodels

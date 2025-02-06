@@ -6,11 +6,9 @@ from ui.Map import run_map
 from ui.eda import run_eda
 from ui.prediction import run_prediction
 
-def main():
-    #한글폰트 처리
-    plt.rcParams['font.family'] = 'NanumGothic' # 맥 기본 한글 서체
-    plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
 
+
+def main():
         # 📌 Streamlit 사이드바 너비 조절 (기본보다 넓게 설정)
     st.markdown(
         """
