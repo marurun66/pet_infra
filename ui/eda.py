@@ -9,10 +9,10 @@ def run_eda():
     hospital_df = pd.read_csv("data/hospitals.csv")
     pharmacy_df = pd.read_csv("data/pharmacies.csv")
 
-    # 📌 Streamlit 사이드바 구성
+    # 사이드바
     st.sidebar.title("📊 데이터 탐색 (EDA)")
 
-    # 🔹 데이터 선택 옵션
+    # 데이터 선택 옵션
     menu=["동 별 반려동물/병원/약국 개수 비교",
         "병원/약국이 없는 지역 찾기",
         "병원/약국 접근성 분석",
@@ -29,20 +29,20 @@ def run_eda():
                                 .merge(pharmacy_counts, on=["구별", "동별"], how="left")
 
     merged_df.fillna(0, inplace=True)
-    # 📌 병원/약국 개수를 정수형으로 변환
+    # 병원/약국 개수를 정수형으로 변환
     merged_df["병원 개수"] = merged_df["병원 개수"].astype(int)
     merged_df["약국 개수"] = merged_df["약국 개수"].astype(int)
 
     merged_df = merged_df.sort_values(by=['구별', '동별']).reset_index(drop=True)
 
 
-    # 📌 EDA 분석 수행
+    # EDA 분석 수행
     if selected_analysis == menu[0]:
         st.subheader(menu[0])
-        # 📌 Streamlit UI - 구 선택 추가
+        # 구 선택 추가
         selected_gu = st.selectbox("구 선택", ["전체"] + list(merged_df["구별"].unique()))
 
-        # ✅ 선택한 구에 해당하는 동만 필터링
+        # 선택한 구에 해당하는 동만 필터링
         if selected_gu != "전체":
             filtered_df = merged_df[merged_df["구별"] == selected_gu]
         else:
@@ -62,7 +62,7 @@ def run_eda():
             xaxis_tickangle=-45
         )
         st.plotly_chart(fig)
-        # 📌 구 선택 시 데이터프레임 출력 로직 (인덱스 제거)
+        # 구 선택 시 데이터프레임 출력 인덱스 숨기기
         if selected_gu != "전체":
             st.write(f"📍 {selected_gu} 데이터 프레임 확인:")
             st.dataframe(merged_df[merged_df["구별"] == selected_gu].style.hide(axis="index"))
@@ -73,10 +73,10 @@ def run_eda():
 
     elif selected_analysis == menu[1]:
         st.subheader(menu[1])
-        # 📌 Streamlit UI - 구 선택 추가
+        # 구 선택 추가
         selected_gu = st.selectbox("구 선택", ["전체"] + list(merged_df["구별"].unique()))
 
-        # ✅ 선택한 구에 해당하는 동만 필터링
+        # 선택한 구에 해당하는 동만 필터링
         if selected_gu != "전체":
             filtered_df = merged_df[merged_df["구별"] == selected_gu]
         else:
@@ -96,26 +96,26 @@ def run_eda():
         st.write("**❌💊 약국이 없는 지역:**")
         st.dataframe(missing_pharmacy)
 
-    # 📌 병원/약국 접근성 분석
+    # 병원/약국 접근성 분석
     elif selected_analysis == menu[2]:
         st.subheader(menu[2])
 
-        # 📌 Streamlit UI - 구 선택 추가
+        # Streamlit UI - 구 선택 추가
         selected_gu = st.selectbox("구 선택", ["전체"] + list(merged_df["구별"].unique()))
 
-        # ✅ 선택한 구에 해당하는 동만 필터링
+        # 선택한 구에 해당하는 동만 필터링
         if selected_gu != "전체":
             filtered_df = merged_df[merged_df["구별"] == selected_gu]
         else:
             filtered_df = merged_df  # 전체 구 표시
 
-        # ✅ 병원 및 약국 개수 계산
+        # 동별 병원 및 약국 개수 계산
         hospital_counts = hospital_df.groupby("동별").size().reset_index(name="병원 개수")
         pharmacy_counts = pharmacy_df.groupby("동별").size().reset_index(name="약국 개수")
         pet_hospital_data = pet_df.merge(hospital_counts, on="동별", how="left").merge(pharmacy_counts, on="동별", how="left")
         pet_hospital_data.fillna(0, inplace=True)
 
-        # ✅ 선택한 구 필터 적용
+        # 선택한 구 필터 적용
         if selected_gu != "전체":
             pet_hospital_data = pet_hospital_data[pet_hospital_data["구별"] == selected_gu]
         
@@ -123,17 +123,17 @@ def run_eda():
         chart_option = st.radio("📊 그래프 선택", menu1)
 
         if chart_option == menu1[0]:
-            # ✅ Scatter Plot: 반려동물 수 대비 병원/약국 개수 (Hover에 동 이름 추가)
+            # 반려동물 수 대비 병원/약국 개수 산점도 그래프
             fig = px.scatter(pet_hospital_data, 
                             x="반려동물수", 
                             y=["병원 개수", "약국 개수"], 
                             labels={"value": "개수", "variable": "항목"},
                             title=f"{selected_gu} 반려동물수와 병원/약국 개수 관계" if selected_gu != "전체" else "반려동물수와 병원/약국 개수 관계",
-                            hover_name="동별")  # ✅ 동별 정보 추가
+                            hover_name="동별")  # 동별 정보 추가
             st.plotly_chart(fig)
 
         elif chart_option == menu1[1]:
-            # ✅ Bar Chart: 동별 병원/약국 개수 비교
+            # 동별 병원/약국 개수 막대 그래프
             fig = px.bar(pet_hospital_data, 
                         x="동별", 
                         y=["병원 개수", "약국 개수"], 

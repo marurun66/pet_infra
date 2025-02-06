@@ -9,8 +9,6 @@ from ui.prediction import run_prediction
 
 
 def main():
-        # 📌 Streamlit 사이드바 너비 조절 (기본보다 넓게 설정)
-
 
     st.markdown(
         """
@@ -28,7 +26,7 @@ def main():
 
     menu = ["Home", "Map", "EDA", "Prediction"]
     choice = st.sidebar.selectbox("Menu", menu)
- # 📌 사이드바 맨 위에 이미지 추가 (가운데 정렬)
+
     st.sidebar.markdown(
         """
         <div style="text-align: center;">

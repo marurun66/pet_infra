@@ -29,9 +29,9 @@ def run_prediction():
     plt.rc('font', family='NanumGothic')
     
     st.sidebar.title("📍K-Means 클러스터링과 수치로 보는      병원🏥/약국💊 부족지역")
-    # 🔹 스케일링된 데이터 X
+    # 스케일링된 데이터 X
     X = pd.read_csv("data/scalerX_data.csv")
-    # 🔹 기존 데이터
+    # 기존 데이터
     df = pd.read_csv("data/merged_data.csv")
 
     
@@ -41,7 +41,7 @@ def run_prediction():
     # folium 지도 생성
     m = folium.Map(location=[37.438, 127.137], zoom_start=12)
 
-    # 🔹 사이드바 메뉴 추가
+    # 사이드바 메뉴 추가
     menu = ["K-Means이란?", "K-Means로 보는 반려동물 인프라 클러스터", "수치로 보는 인프라 부족지역"]
     selected_analysis = st.sidebar.radio("📌 분석할 항목을 선택하세요.", menu)
 
@@ -51,7 +51,7 @@ def run_prediction():
         K-Means 클러스터링은 데이터를 **K개의 그룹으로 나누는 비지도 학습 기법**입니다.  
         각 데이터 포인트는 **가장 가까운 중심(centroid)과의 거리**를 기준으로 군집화됩니다.  
         """)
-        # ✅ 엘보우 기법 적용
+        # 엘보우 기법 설명
         st.subheader("📊 최적의 클러스터 개수 찾기 (Elbow Method)")
         sse = []
         k_range = range(1, 11)
@@ -60,7 +60,7 @@ def run_prediction():
             kmeans.fit(X)
             sse.append(kmeans.inertia_)
 
-        # ✅ 엘보우 기법 차트 시각화
+        # 엘보우 기법 차트 시각화
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.plot(k_range, sse, marker='o', linestyle='--')
         ax.set_xlabel('클러스터 개수 (k)')
@@ -68,7 +68,6 @@ def run_prediction():
         ax.set_title('엘보우 기법을 이용한 최적 클러스터 개수 찾기')
         st.pyplot(fig)
 
-        # ✅ 엘보우 기법 설명 멘트
         st.markdown("""
         ### 📌 엘보우 기법이란?
         - 클러스터 개수를 증가시키면 **오차 제곱합(SSE)** 이 감소하지만, 특정 지점 이후로 감소 속도가 둔화됩니다.  
@@ -87,14 +86,14 @@ def run_prediction():
 
     elif selected_analysis == menu[1]:
         
-        # 🔹 유저가 클러스터 개수 선택
+        # 유저가 클러스터 개수 선택 하도록함
         n_clusters = st.slider("🔢 클러스터 개수를 선택하세요", min_value=2, max_value=10, value=5, step=1)
 
         # 데이터 불러오기
         st.write("사용자가 선택한 클러스터 개수를 적용하여 클러스터를 나눕니다.")
         cluster_colors = {0: "red", 1: "blue", 2: "green", 3: "purple", 4: "orange", 5: "pink", 6: "cyan", 7: "brown", 8: "gray", 9: "yellow"}
         
-        # 🔹 K-Means 클러스터링 수행 (사용자 입력 반영)
+        # K-Means 클러스터링 수행 (사용자 입력 반영)
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         df["클러스터"] = kmeans.fit_predict(X)
         marker_cluster = MarkerCluster().add_to(m)
@@ -110,7 +109,7 @@ def run_prediction():
         </div>
         """
         
-        # ✅ 병원 / 약국 선택 버튼
+        # 병원 / 약국 선택
         menu2 = ["병원🏥", "약국💊"]
         view_option = st.radio("🔎 무엇을 기준으로 확인해볼까요?", menu2)
 
@@ -132,7 +131,7 @@ def run_prediction():
                 icon=folium.Icon(color=cluster_colors.get(row['클러스터'], 'gray'))
             ).add_to(marker_cluster)
         
-        # GeoJSON을 지도에 추가 (마지막에 추가하여 클러스터링을 덮지 않도록 설정)
+        # GeoJSON을 추가해서 행정동 구분
         folium.GeoJson(
             gdf,
             name="성남시 행정동",
@@ -153,7 +152,6 @@ def run_prediction():
                 icon=folium.DivIcon(html=f'<div style="font-size: 10pt; font-weight: bold; color: black; background-color: rgba(255, 255, 255, 0.0); padding: 2px; border-radius: 3px; display: inline-block; white-space: nowrap;">{row["dong_name"]}</div>')
             ).add_to(m)
 
-            # folium 지도 Streamlit에 표시
         folium_static(m)
 
 
