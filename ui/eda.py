@@ -1,8 +1,5 @@
 import streamlit as st
 import pandas as pd
-import folium
-from streamlit_folium import folium_static
-import json
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -21,8 +18,7 @@ def run_eda():
         "병원/약국 접근성 분석",
         "반려동물 수와 병원 개수의 상관관계"]
     
-    selected_analysis = st.sidebar.radio("분석 항목 선택", menu)
-
+    selected_analysis = st.sidebar.radio("📌 분석할 항목을 선택하세요.", menu)
     pet_hospital_counts = pet_df.groupby(["구별", "동별"])["반려동물수"].sum().reset_index()
     hospital_counts = hospital_df.groupby(["구별", "동별"])["사업장명"].count().reset_index()
     hospital_counts.rename(columns={"사업장명": "병원 개수"}, inplace=True)
@@ -191,4 +187,4 @@ def run_eda():
             
 
 
-    st.sidebar.write("📌 분석할 항목을 선택하세요.")
+    

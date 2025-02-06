@@ -1,13 +1,11 @@
-import pickle
 import streamlit as st
 import pandas as pd
 import folium
 from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
 from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
 def run_prediction():
-    st.sidebar.title("📍K-Means로 보는 보는 병원/약국 부족지역")
+    st.sidebar.title("📍K-Means 클러스터링과 수치로 보는      병원🏥/약국💊 부족지역")
     # 🔹 스케일링된 데이터 X
     X = pd.read_csv("data/scalerX_data.csv")
     # 🔹 기존 데이터
@@ -15,9 +13,8 @@ def run_prediction():
 
 
     # 🔹 사이드바 메뉴 추가
-    st.sidebar.title("📍 병원/약국 부족 지역 분석")
     menu = ["K-Means이란?", "K-Means로 보는 부족지역", "수치로 보는 부족지역"]
-    selected_analysis = st.sidebar.radio("분석 방법을 선택하세요", menu)
+    selected_analysis = st.sidebar.radio("📌 분석할 항목을 선택하세요.", menu)
 
     if selected_analysis == menu[0]:
         st.subheader(f"📊 {menu[0]}")
