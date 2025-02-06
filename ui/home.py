@@ -1,6 +1,6 @@
 import streamlit as st
 
-
+#
 
 def run_home():
     st.subheader("🐾 우리 동네에 반려동물 병원과 약국이 충분할까?")
