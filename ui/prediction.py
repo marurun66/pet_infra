@@ -4,12 +4,31 @@ import folium
 from sklearn.cluster import KMeans
 from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
+
+import os
+import matplotlib.font_manager as fm
+
+@st.cache_data
+def fontRegistered():
+    font_dirs = [os.getcwd() + '/custom_fonts']
+    font_files = fm.findSystemFonts(fontpaths=font_dirs)
+    for font_file in font_files:
+        fm.fontManager.addfont(font_file)
+    fm._load_fontmanager(try_read_cache=False)
+
+
 def run_prediction():
+
+    fontRegistered()
+    plt.rc('font', family='NanumGothic')
+    
     st.sidebar.title("📍K-Means 클러스터링과 수치로 보는      병원🏥/약국💊 부족지역")
     # 🔹 스케일링된 데이터 X
     X = pd.read_csv("data/scalerX_data.csv")
     # 🔹 기존 데이터
     df = pd.read_csv("data/merged_data.csv")
+    
+    
 
 
     # 🔹 사이드바 메뉴 추가
