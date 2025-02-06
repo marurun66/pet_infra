@@ -33,6 +33,7 @@ def run_prediction():
     X = pd.read_csv("data/scalerX_data.csv")
     # 🔹 기존 데이터
     df = pd.read_csv("data/merged_data.csv")
+
     
     # 성남시 행정동 GeoJSON 불러오기
     geojson_path = "data/seongnam_geo.json"
@@ -115,7 +116,10 @@ def run_prediction():
 
         if view_option == menu2[0]:
             st.subheader(f"📍 병원 클러스터링된 지역 보기 (클러스터 {n_clusters}개)")
+
             st.dataframe(df[["지역명", "반려동물수", "병원수","병원당_반려동물수", "클러스터"]])
+
+            
         elif view_option == menu2[1]:
             st.subheader(f"📍 약국 클러스터링된 지역 보기 (클러스터 {n_clusters}개)")
             st.dataframe(df[["지역명", "반려동물수", "약국수","약국당_반려동물수", "클러스터"]])

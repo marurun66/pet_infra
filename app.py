@@ -6,23 +6,12 @@ from ui.Map import run_map
 from ui.eda import run_eda
 from ui.prediction import run_prediction
 
-import os
-import matplotlib.font_manager as fm
-
-@st.cache_data
-def fontRegistered():
-    font_dirs = [os.getcwd() + '/custom_fonts']
-    font_files = fm.findSystemFonts(fontpaths=font_dirs)
-    for font_file in font_files:
-        fm.fontManager.addfont(font_file)
-    fm._load_fontmanager(try_read_cache=False)
 
 
 def main():
         # 📌 Streamlit 사이드바 너비 조절 (기본보다 넓게 설정)
 
-    fontRegistered()
-    plt.rc('font', family='NanumGothic')
+
     st.markdown(
         """
         <style>

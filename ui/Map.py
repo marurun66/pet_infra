@@ -4,19 +4,10 @@ import pandas as pd
 import folium
 from streamlit_folium import folium_static
 import json
-import os
-import matplotlib.font_manager as fm
-@st.cache_data
-def fontRegistered():
-    font_dirs = [os.getcwd() + '/custom_fonts']
-    font_files = fm.findSystemFonts(fontpaths=font_dirs)
-    for font_file in font_files:
-        fm.fontManager.addfont(font_file)
-    fm._load_fontmanager(try_read_cache=False)
+
+
 
 def run_map():
-    fontRegistered()
-    plt.rc('font', family='NanumGothic')
 
 
     # 📌 데이터 불러오기
