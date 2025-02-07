@@ -5,5 +5,4 @@ folium
 streamlit_folium
 scikit-learn
 matplotlib
-statsmodels
 geopandas
