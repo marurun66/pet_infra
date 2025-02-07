@@ -15,7 +15,7 @@ def run_eda():
     # 데이터 선택 옵션
     menu=["동 별 반려동물/병원/약국 개수 비교",
         "병원/약국이 없는 지역 찾기",
-        "병원/약국 접근성 분석",
+        "병원/약국 산점도 분석",
         "반려동물 수와 병원 개수의 상관관계"]
     
     selected_analysis = st.sidebar.radio("📌 분석할 항목을 선택하세요.", menu)
@@ -40,8 +40,16 @@ def run_eda():
     if selected_analysis == menu[0]:
         st.subheader(menu[0])
         # 구 선택 추가
+        st.markdown("""
+        📍차트를 이렇게 활용해보세요. 
+                    
+        구 선택을 통해 각 동별 **반려동물 수와 동물병원 및 동물약국 개수를 한눈에 비교**할 수 있습니다.
+        - **X축**: 지역별 동 이름  
+        - **Y축**: 반려동물 수(파란색), 병원 개수(빨간색), 약국 개수(초록색)       
+                    """)
         selected_gu = st.selectbox("구 선택", ["전체"] + list(merged_df["구별"].unique()))
 
+        
         # 선택한 구에 해당하는 동만 필터링
         if selected_gu != "전체":
             filtered_df = merged_df[merged_df["구별"] == selected_gu]
@@ -54,7 +62,7 @@ def run_eda():
         fig.add_trace(go.Scatter(x=filtered_df["동별"], y=filtered_df["약국 개수"], name="약국 개수", mode='lines+markers', line=dict(color='green'), yaxis='y2'))
         
         fig.update_layout(
-            title=f"📍{selected_gu} 동별 반려동물 수 및 병원/약국 개수 비교" if selected_gu != "전체" else "동별 반려동물 수 및 병원/약국 개수 비교",
+            title=f"📍{selected_gu} 동별 반려동물 수와 병원/약국 개수 비교" if selected_gu != "전체" else "동별 반려동물 수 및 병원/약국 개수 비교",
             xaxis_title="동별",
             yaxis=dict(title="반려동물 수", side="left"),
             yaxis2=dict(title="병원/약국 개수", overlaying="y", side="right", showgrid=False),
@@ -64,15 +72,18 @@ def run_eda():
         st.plotly_chart(fig)
         # 구 선택 시 데이터프레임 출력 인덱스 숨기기
         if selected_gu != "전체":
-            st.write(f"📍 {selected_gu} 데이터 프레임 확인:")
+            st.write(f"📍 {selected_gu} 데이터 수치 확인:")
             st.dataframe(merged_df[merged_df["구별"] == selected_gu].style.hide(axis="index"))
         else:
-            st.write("📍 전체 데이터 프레임 확인:")
+            st.write("📍 전체 데이터 수치 확인:")
             st.dataframe(merged_df.style.hide(axis="index"))
 
 
     elif selected_analysis == menu[1]:
         st.subheader(menu[1])
+        st.markdown("""
+        📍구 선택을 통해 병원, 약국이 없는 지역을 확인하세요.  
+                    """)
         # 구 선택 추가
         selected_gu = st.selectbox("구 선택", ["전체"] + list(merged_df["구별"].unique()))
 
@@ -123,6 +134,7 @@ def run_eda():
         chart_option = st.radio("📊 그래프 선택", menu1)
 
         if chart_option == menu1[0]:
+            
             # 반려동물 수 대비 병원/약국 개수 산점도 그래프
             fig = px.scatter(pet_hospital_data, 
                             x="반려동물수", 
@@ -132,7 +144,36 @@ def run_eda():
                             hover_name="동별")  # 동별 정보 추가
             st.plotly_chart(fig)
 
+            with st.container():
+                st.markdown(
+                    """
+                    <div style="
+                        background-color: #dff0d8; 
+                        padding: 15px; 
+                        border-radius: 10px;
+                        border: 1px solid #c3e6cb;">
+                    
+                    #### 📊 반려동물 수 대비 병원/약국 개수 산점도 해석
+
+                    ##### - X축(반려동물 수) → 반려동물이 많은 지역
+                    - X축 값이 클수록 반려동물 양육 가구가 많은 지역
+                    - 오른쪽으로 갈수록 반려동물 수요가 높은 지역
+
+                    ##### - Y축(병원/약국 개수) → 의료 인프라 수준
+                    - Y축 값이 클수록 해당 지역의 병원·약국 개수 증가
+                    - 위쪽으로 갈수록 동물 의료 인프라가 풍부한 지역
+
+                    ### 🏥 결론  
+                    <p>✔ <b>반려동물은 많지만 병원·약국이 부족한 지역(X축에 가까운 지역)</b>은 <br> 신규 병원·약국 개설이 필요한 후보지입니다.</p>  
+                    <p>✔ <b>병원·약국이 많지만 반려동물이 적은 지역(Y축에 가까운 지역)</b>은 <br> 의료 인프라가 과포화 상태일 가능성이 높습니다.</p>  
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
         elif chart_option == menu1[1]:
+            st.text("📍 동별 병원/약국 개수를 차트로 비교합니다.")
             # 동별 병원/약국 개수 막대 그래프
             fig = px.bar(pet_hospital_data, 
                         x="동별", 
@@ -140,6 +181,8 @@ def run_eda():
                         title=f"{selected_gu} 동별 병원/약국 개수 비교" if selected_gu != "전체" else "동별 병원/약국 개수 비교",
                         barmode="group")  # ✅ 병원과 약국을 그룹화하여 비교
             st.plotly_chart(fig)
+
+
 
 
     elif selected_analysis == menu[3]:
@@ -166,23 +209,28 @@ def run_eda():
                             title="반려동물수 대비 약국 개수 회귀 분석")
             st.plotly_chart(fig2)
 
-        if st.button("📖 상관계수란?"):
-            st.markdown(
-                """
-                <div style="padding:10px; border-radius:5px; background-color:#eef7ff;">
-                <h4>📊 반려동물 수와 병원/약국 개수의 상관계수 해석</h4>
-                <ul>
-                    <li><b> r > 0.7</b> → 반려동물이 많을수록 병원(약국)도 많음</li>
-                    <li><b> 0.4 ≤ r ≤ 0.7</b> → 반려동물이 많을수록 병원(약국) 개수가 증가하는 경향이 있음</li>
-                    <li><b> r ≈ 0</b> → 반려동물 수와 병원(약국) 개수는 별다른 관계가 없음</li>
-                    <li><b> r < 0</b> → 반려동물이 많을수록 병원(약국)이 적어지는 경향이 있음</li>
-                </ul>
-                <p>📍 <b>쉽게 말해, 값이 1에 가까울수록 관련성이 크고, 0이면 관계가 없으며, -1이면 반대 방향으로 강한 관계가 있다는 의미입니다!</b> 😊</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+        with st.container():
+                st.markdown(
+                    """
+                    <div style="
+                        background-color: #dff0d8; 
+                        padding: 15px; 
+                        border-radius: 10px;
+                        border: 1px solid #c3e6cb;">
+                    
+                    #### 📊 반려동물 수와 병원/약국 개수의 상관계수 해석
 
+                     1️⃣ r > 0.7</b> → 반려동물이 많을수록 병원(약국)도 많음  
+                     2️⃣ 0.4 ≤ r ≤ 0.7</b> → 반려동물이 많을수록 병원(약국) 개수가 증가하는 경향이 있음  
+                     3️⃣ r ≈ 0</b> → 반려동물 수와 병원(약국) 개수는 별다른 관계가 없음  
+                     4️⃣ r < 0</b> → 반려동물이 많을수록 병원(약국)이 적어지는 경향이 있음
+
+                    **즉, 반려동물수가 많을수록 병원, 약국도 많습니다!** 😊
+
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
             
 

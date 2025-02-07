@@ -80,55 +80,37 @@ def run_prediction():
         ### 📌 성남시 반려동물 인프라 분석 앱에서는
         - 위도와 경도 
         - 동물소유자 수, 반려동물 수,병원 수,약국 수
-        - 동 기준 병원 당 반려동물수,약국 당 반려동물 수
+        - 동 기준 병원 당 반려동물 수,약국 당 반려동물 수
         - 행정동 기준으로 K-Mean 클러스터링을 수행합니다.""")
 
 
     elif selected_analysis == menu[1]:
-        
+
         # 유저가 클러스터 개수 선택 하도록함
-        n_clusters = st.slider("🔢 클러스터 개수를 선택하세요", min_value=2, max_value=10, value=5, step=1)
+        n_clusters = st.slider("🔢 클러스터 개수를 선택하세요", min_value=4, max_value=6, value=5, step=1)
 
         # 데이터 불러오기
-        st.write("사용자가 선택한 클러스터 개수를 적용하여 클러스터를 나눕니다.")
-        cluster_colors = {0: "red", 1: "blue", 2: "green", 3: "purple", 4: "orange", 5: "pink", 6: "cyan", 7: "brown", 8: "gray", 9: "yellow"}
+        st.markdown("""
+        엘보우 기법으로 확인했을때, **최적 클러스터 개수는 4~5개**입니다.  
+        확인하고 싶은 클러스터 개수를 적용해보세요.  
+        클러스터는 맵 상에서 **마커 색깔**로 구분할 수 있습니다.
+        """)
+
+
+        cluster_colors = {0: "red", 1: "blue", 2: "green", 3: "purple", 4: "orange"}
         
         # K-Means 클러스터링 수행 (사용자 입력 반영)
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         df["클러스터"] = kmeans.fit_predict(X)
         marker_cluster = MarkerCluster().add_to(m)
-        cluster_colors = {i: color for i, color in enumerate(["red", "blue", "green", "purple", "orange", "pink", "cyan", "brown", "gray", "yellow"])}
-        
-        legend_html = """
-        <div style="position: fixed; 
-                    bottom: 50px; left: 50px; width: 180px; height: 250px;
-                    background-color: rgba(255, 255, 255, 0.0); z-index:9999; font-size:14px;
-                    border-radius: 10px; padding: 10px;">
-        <b>📌 클러스터 범례</b><br>
-        """ + "".join([f"<i style='background:{color}; width:10px; height:10px; display:inline-block;'></i> 클러스터 {i}<br>" for i, color in cluster_colors.items()]) + """
-        </div>
-        """
-        
-        # 병원 / 약국 선택
-        menu2 = ["병원🏥", "약국💊"]
-        view_option = st.radio("🔎 무엇을 기준으로 확인해볼까요?", menu2)
-
-        if view_option == menu2[0]:
-            st.subheader(f"📍 병원 클러스터링된 지역 보기 (클러스터 {n_clusters}개)")
-
-            st.dataframe(df[["지역명", "반려동물수", "병원수","병원당_반려동물수", "클러스터"]])
-
-            
-        elif view_option == menu2[1]:
-            st.subheader(f"📍 약국 클러스터링된 지역 보기 (클러스터 {n_clusters}개)")
-            st.dataframe(df[["지역명", "반려동물수", "약국수","약국당_반려동물수", "클러스터"]])
-        
-        cluster_colors = {0: 'red', 1: 'blue', 2: 'green', 3: 'purple', 4: 'orange', 5: 'pink', 6: 'cyan', 7: 'brown', 8: 'gray', 9: 'yellow'}
+        cluster_colors = {i: color for i, color in enumerate(["red", "blue", "green", "purple", "orange"])}
+                
+        cluster_colors = {0: 'red', 1: 'blue', 2: 'green', 3: 'purple', 4: 'orange'}
         for idx, row in df.iterrows():
             folium.Marker(
                 location=[row['위도'], row['경도']],
                 popup=folium.Popup(f'<div style="white-space: nowrap;">클러스터: {row["클러스터"]}<br>동 이름: {row["지역명"]}</div>', max_width=300),
-                icon=folium.Icon(color=cluster_colors.get(row['클러스터'], 'gray'))
+                icon=folium.Icon(color=cluster_colors.get(row['클러스터'], 'medkit'))
             ).add_to(marker_cluster)
         
         # GeoJSON을 추가해서 행정동 구분
@@ -154,18 +136,54 @@ def run_prediction():
 
         folium_static(m)
 
+            # 병원 / 약국 선택
+        menu2 = ["병원🏥", "약국💊"]
+        view_option = st.radio("🔎 무엇을 기준으로 확인해볼까요?", menu2)
+
+        if view_option == menu2[0]:
+            st.subheader(f"📍 병원 클러스터링된 지역 보기 (클러스터 {n_clusters}개)")
+
+            st.dataframe(df[["지역명", "반려동물수", "병원수", "병원당_반려동물수", "클러스터"]].astype({"병원당_반려동물수": int}))
+            
+        elif view_option == menu2[1]:
+            st.subheader(f"📍 약국 클러스터링된 지역 보기 (클러스터 {n_clusters}개)")
+            st.dataframe(df[["지역명", "반려동물수", "약국수","약국당_반려동물수", "클러스터"]].astype({"약국당_반려동물수": int})) 
+        
+
+        st.markdown(
+        """
+        <div style="
+            background-color: #dff0d8; 
+            padding: 15px; 
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;">
+        
+        #### 🐶활용제안:  
+        KMeans 알고리즘을 활용하여 성남시의 반려동물 인프라를 클러스터링한 결과입니다.</br>
+        수치로 보는 인프라부족지역 메뉴와 함께 **클러스터링 결과를 참고하여 부족한 지역을 확인**해보세요.
+
+        
+
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 
     elif selected_analysis == menu[2]:
             st.subheader("📍 병원 및 약국 부족 지역 분석")
+            st.info("병원/약국 부족 상위 10개지역을 지도에서 확인해보세요.")
+
             view_option = st.radio("🔎 어떤 부족 지역을 보시겠습니까?", ["병원 부족 지역", "약국 부족 지역"])
             
             if view_option == "병원 부족 지역":
-                st.subheader("📍 병원이 부족한 상위 10개 지역")
+
                 df["병원당_반려동물수"] = df["반려동물수"] / (df["병원수"] + 1)
                 top_needy_hospital = df.sort_values(by="병원당_반려동물수", ascending=False).head(10)
-                st.write(top_needy_hospital[["지역명", "반려동물수", "병원수", "병원당_반려동물수"]])
                 
                 st.subheader("📍 병원 부족 지역 지도")
+                st.text("지도 마커를 클릭하면, 반려동물 대비 병원 수 확인이 가능합니다.")
                 map_hospital = folium.Map(location=[df["위도"].mean(), df["경도"].mean()], zoom_start=12)
                 
             # GeoJSON을 지도에 추가
@@ -179,7 +197,6 @@ def run_prediction():
                         "fillOpacity": 0.5
                     }
                 ).add_to(map_hospital)
-                
                 
                 # 동 이름 라벨 추가
                 for _, row in gdf.iterrows():
@@ -202,14 +219,16 @@ def run_prediction():
                     ).add_to(map_hospital)
 
                 folium_static(map_hospital)
+                st.subheader("📍 병원이 부족한 상위 10개 지역")
+                st.write(top_needy_hospital[["지역명", "반려동물수", "병원수", "병원당_반려동물수"]])
             
             elif view_option == "약국 부족 지역":
-                st.subheader("📍 약국이 부족한 상위 10개 지역")
+
                 df["약국당_반려동물수"] = df["반려동물수"] / (df["약국수"] + 1)
                 top_needy_pharmacy = df.sort_values(by="약국당_반려동물수", ascending=False).head(10)
-                st.write(top_needy_pharmacy[["지역명", "반려동물수", "약국수", "약국당_반려동물수"]])
                 
                 st.subheader("📍 약국 부족 지역 지도")
+                st.text("지도 마커를 클릭하면, 반려동물 대비 약국 수 확인이 가능합니다.")
                 map_pharmacy = folium.Map(location=[df["위도"].mean(), df["경도"].mean()], zoom_start=12)
                 
             # GeoJSON을 지도에 추가
@@ -245,3 +264,5 @@ def run_prediction():
                     ).add_to(map_pharmacy)
 
                 folium_static(map_pharmacy)
+                st.subheader("📍 약국이 부족한 상위 10개 지역")
+                st.write(top_needy_pharmacy[["지역명", "반려동물수", "약국수", "약국당_반려동물수"]])
