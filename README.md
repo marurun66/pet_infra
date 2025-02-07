@@ -26,7 +26,7 @@
 ### 🗺 보다 명확한 행정구역 구분
 
 - 기본 지도에서는 **동별 구분을 한분에 보기 어렵다**는 한계를 해결하기 위해, 
-  - [경기도 성남시 행정구역 GeoJSON](https://github.com/vuski/admdongkor?utm_source=chatgpt.com) 데이터를 활용하여 **성남시 행정동 구역을 지도에 표시**하였습니다.
+  - [경기도 성남시 행정구역 GeoJSON](https://github.com/vuski/admdongkor?utm_source=chatgpt.com) 데이터를 활용하여 성남시 행정구,동 정보만을 가공하여 **성남시 행정동 구역을 지도에 표시**하였습니다.
 
 ### 📊 K-Means 클러스터링 분석
 
@@ -47,6 +47,7 @@
 - [경기도 성남시 반려동물 등록현황](https://www.data.go.kr/data/15047504/fileData.do)
 - [경기도 성남시 동물병원 현황](https://www.data.go.kr/data/15000909/fileData.do)
 - [경기도 성남시 동물약국 현황](https://www.data.go.kr/data/15061125/fileData.do)
+- [대한민국 17개 광역시/도 행정동 GEOJSON 파일](https://github.com/raqoon886/Local_HangJeongDong)
 
 
 
