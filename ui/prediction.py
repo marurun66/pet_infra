@@ -81,7 +81,7 @@ def run_prediction():
         - 위도와 경도 
         - 동물소유자 수, 반려동물 수,병원 수,약국 수
         - 동 기준 병원 당 반려동물수,약국 당 반려동물 수
-        - 행정구 기준으로 클러스터링을 수행합니다.""")
+        - 행정동 기준으로 K-Mean 클러스터링을 수행합니다.""")
 
 
     elif selected_analysis == menu[1]:
@@ -136,10 +136,10 @@ def run_prediction():
             gdf,
             name="성남시 행정동",
             style_function=lambda feature: {
-                "fillColor": "#blue",
-                "color": "black",
+                "fillColor": "#add8e6",
+                "color": "#2a52be",
                 "weight": 1,
-                "fillOpacity": 0.2
+                "fillOpacity": 0.5
             },
             tooltip=folium.GeoJsonTooltip(fields=["dong_name"], aliases=["동 이름"]),
             show=True
@@ -173,12 +173,13 @@ def run_prediction():
                     gdf,
                     name="성남시 행정동",
                     style_function=lambda feature: {
-                        "fillColor": "#blue",
-                        "color": "black",
+                        "fillColor": "#add8e6",
+                        "color": "#2a52be",
                         "weight": 1,
-                        "fillOpacity": 0.2
+                        "fillOpacity": 0.5
                     }
                 ).add_to(map_hospital)
+                
                 
                 # 동 이름 라벨 추가
                 for _, row in gdf.iterrows():
@@ -186,6 +187,7 @@ def run_prediction():
                         location=[row.geometry.centroid.y, row.geometry.centroid.x],
                         icon=folium.DivIcon(html=f'<div style="font-size: 10pt; font-weight: bold; color: black; background-color: rgba(255, 255, 255, 0.0); padding: 2px; border-radius: 3px; display: inline-block; white-space: nowrap;">{row["dong_name"]}</div>')
                     ).add_to(map_hospital)
+                    
 
                 for idx, row in top_needy_hospital.iterrows():
                     folium.CircleMarker(
@@ -215,10 +217,10 @@ def run_prediction():
                     gdf,
                     name="성남시 행정동",
                     style_function=lambda feature: {
-                        "fillColor": "#blue",
-                        "color": "black",
+                        "fillColor": "#add8e6",
+                        "color": "#2a52be",
                         "weight": 1,
-                        "fillOpacity": 0.2
+                        "fillOpacity": 0.5
                     }
                 ).add_to(map_pharmacy)
                 

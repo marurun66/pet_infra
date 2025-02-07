@@ -61,9 +61,9 @@ def run_map():
         if selected_dong != "전체":
             return 14  # ✅ 동을 선택하면 더 확대
         elif selected_gu != "전체":
-            return 12  # ✅ 구를 선택하면 적절한 확대 수준 적용
+            return 13  # ✅ 구를 선택하면 적절한 확대 수준 적용
         else:
-            return 11  # 기본 성남시 전체 확대
+            return 12  # 기본 성남시 전체 확대
 
     # 데이터 필터링 (사용자가 선택한 구·동별 데이터만 표시)
     filtered_hospital_data = hospital_data.copy()
