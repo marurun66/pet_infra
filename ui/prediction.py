@@ -97,15 +97,13 @@ def run_prediction():
         """)
 
 
-        cluster_colors = {0: "red", 1: "blue", 2: "green", 3: "purple", 4: "orange"}
+        cluster_colors = {0: "red", 1: "blue", 2: "green", 3: "purple", 4: "orange", 5: "pink"}
         
         # K-Means 클러스터링 수행 (사용자 입력 반영)
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         df["클러스터"] = kmeans.fit_predict(X)
         marker_cluster = MarkerCluster().add_to(m)
-        cluster_colors = {i: color for i, color in enumerate(["red", "blue", "green", "purple", "orange"])}
-                
-        cluster_colors = {0: 'red', 1: 'blue', 2: 'green', 3: 'purple', 4: 'orange'}
+        
         for idx, row in df.iterrows():
             folium.Marker(
                 location=[row['위도'], row['경도']],
@@ -123,7 +121,7 @@ def run_prediction():
                 "weight": 1,
                 "fillOpacity": 0.5
             },
-            tooltip=folium.GeoJsonTooltip(fields=["dong_name"], aliases=["동 이름"]),
+
             show=True
         ).add_to(m)
 

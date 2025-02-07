@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 import streamlit as st
 
+from ui.about import run_about
 from ui.home import run_home
 from ui.Map import run_map
 from ui.eda import run_eda
@@ -24,7 +25,7 @@ def main():
 
     st.title("성남시 반려동물 인프라 분석")
 
-    menu = ["Home", "Map", "EDA", "Prediction"]
+    menu = ["Home", "Map", "EDA", "Prediction","About"]
     choice = st.sidebar.selectbox("Menu", menu)
 
     st.sidebar.markdown(
@@ -49,6 +50,9 @@ def main():
 
     elif choice == "Prediction":
         run_prediction()
+
+    elif choice == "About":
+        run_about()
 
 if __name__ == '__main__':
     main()
