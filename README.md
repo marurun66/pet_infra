@@ -60,30 +60,6 @@
 2️⃣ **GitHub에 애플리케이션 업로드**  
 3️⃣ **Streamlit Cloud를 활용하여 외부에서 접근 가능하도록 배포**  
 
----
-
-## 📂 애플리케이션 구조  
-```
-📁 seongnam-animal-hospital-app/
-│── 📄 app.py                      # 애플리케이션 메인 파일 (Streamlit)
-|── 📂 data/
-│   │── 📄 seongnam_geo.json       # 성남시 행정동 GeoJSON 데이터
-│   │── 📄 hospitals.csv           # 성남시 동물병원 데이터
-│   │── 📄 pharmacies.csv          # 성남시 동물약국 데이터
-│   │── 📄 pet_data.csv            # 반려동물 등록 수 데이터
-│   │── 📄 scalerX_data.csv        # 정규화된 데이터
-│   │── 📄 merged_data.csv         # 통합된 데이터
-|── 📂 model/
-│   │── 📄 kmeans.pkl              # K-Means 클러스터링 모델
-│   │── 📄 scaler.pkl              # 데이터 정규화 모델
-|── 📂 ui/
-│   │── 📄 eda.py                  # 탐색적 데이터 분석 (EDA) 탭
-│   │── 📄 home.py                 # 홈 화면 탭
-│   │── 📄 info.py                 # 앱 정보 탭
-│   │── 📄 ml.py                   # 머신 러닝 (ML) 탭
-│   │── 📄 stat.py                 # 통계 데이터 탭
-│── 📄 README.md                   # 애플리케이션 설명 파일
-```
 
 ---
 
