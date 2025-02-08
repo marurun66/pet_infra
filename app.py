@@ -11,18 +11,6 @@ from ui.prediction import run_prediction
 
 def main():
 
-    st.markdown(
-        """
-        <style>
-            [data-testid="stSidebar"] {
-                min-width: 500px;
-                max-width: 550px;
-            }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
     st.title("성남시 반려동물 인프라 분석")
 
     menu = ["Home", "Map", "EDA", "Prediction","About"]
