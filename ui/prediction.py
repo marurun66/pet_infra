@@ -1,4 +1,5 @@
 import json
+import joblib
 import streamlit as st
 import pandas as pd
 import folium
@@ -7,6 +8,7 @@ from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from folium.plugins import MarkerCluster 
+import plotly.express as px
 
 
 import os
@@ -29,10 +31,12 @@ def run_prediction():
     plt.rc('font', family='NanumGothic')
     
     st.sidebar.title("📍K-Means 클러스터링과 수치로 보는      병원🏥/약국💊 부족지역")
-    # 스케일링된 데이터 X
-    X = pd.read_csv("data/scalerX_data.csv")
-    # 기존 데이터
+    # 인코딩된 데이터
+    X = pd.read_csv("data/X.csv")
+    # 클러스터링 결과 데이터
     df = pd.read_csv("data/merged_data.csv")
+    # 모델 불러오기
+    kmeans_loaded = joblib.load('models/kmeans_model.pkl')
 
     
     # 성남시 행정동 GeoJSON 불러오기
@@ -57,10 +61,9 @@ def run_prediction():
         k_range = range(1, 11)
         for k in k_range:
             kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-            kmeans.fit(X)
+            kmeans.fit(df[['위도', '경도']])
             sse.append(kmeans.inertia_)
-
-        # 엘보우 기법 차트 시각화
+        
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.plot(k_range, sse, marker='o', linestyle='--')
         ax.set_xlabel('클러스터 개수 (k)')
@@ -72,7 +75,7 @@ def run_prediction():
         ### 📌 엘보우 기법이란?
         - 클러스터 개수를 증가시키면 **오차 제곱합(SSE)** 이 감소하지만, 특정 지점 이후로 감소 속도가 둔화됩니다.  
         - 이 변곡점이 바로 **"엘보우 포인트(Elbow Point)"** 입니다.  
-        - **해당 그래프를 보면 k=5에서 변화가 둔화**되므로 **4~5개의 클러스터가 가장 적절한 개수**로 보여집니다.
+        - **해당 그래프를 보면 k=4에서 변화가 둔화**되므로 **4개의 클러스터가 가장 적절한 개수**로 보여집니다.
         - 다음 **K-Means로 보는 부족지역 메뉴**에서 직접 클러스터 개수를 조절해 결과를 확인해보세요.
         """)
         # ✅ 
@@ -85,23 +88,15 @@ def run_prediction():
 
 
     elif selected_analysis == menu[1]:
-
-        # 유저가 클러스터 개수 선택 하도록함
-        n_clusters = st.slider("🔢 클러스터 개수를 선택하세요", min_value=4, max_value=6, value=5, step=1)
-
+        st.subheader(f"📊 {menu[1]}")
         # 데이터 불러오기
         st.markdown("""
-        엘보우 기법으로 확인했을때, **최적 클러스터 개수는 4~5개**입니다.  
-        확인하고 싶은 클러스터 개수를 적용해보세요.  
+        엘보우 기법으로 확인했을때, **최적 클러스터 개수는 4개**입니다.  
         클러스터는 맵 상에서 **마커 색깔**로 구분할 수 있습니다.
         """)
 
-
-        cluster_colors = {0: "red", 1: "blue", 2: "green", 3: "purple", 4: "orange", 5: "pink"}
+        cluster_colors = {0: "red", 1: "blue", 2: "green", 3: "purple", 4: "orange"}
         
-        # K-Means 클러스터링 수행 (사용자 입력 반영)
-        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-        df["클러스터"] = kmeans.fit_predict(X)
         marker_cluster = MarkerCluster().add_to(m)
         
         for idx, row in df.iterrows():
@@ -134,35 +129,58 @@ def run_prediction():
 
         folium_static(m)
 
-            # 병원 / 약국 선택
-        menu2 = ["병원🏥", "약국💊"]
-        view_option = st.radio("🔎 무엇을 기준으로 확인해볼까요?", menu2)
+        df_sorted = df.sort_values(by="클러스터").reset_index(drop=True)
+        st.markdown('<span style="color:red">🔴 <b>0번</b> 클러스터 정보보기</span>', unsafe_allow_html=True)
+        st.data_editor(df_sorted[df_sorted["클러스터"]==0].drop(columns=["위도", "경도","클러스터","동별","구별"]),hide_index=True)
+        st.markdown('<span style="color:blue"> <b>🔵 1번</b> 클러스터 정보보기</span>', unsafe_allow_html=True)
+        st.data_editor(df_sorted[df_sorted["클러스터"]==1].drop(columns=["위도", "경도","클러스터","동별","구별"]),hide_index=True)
+        st.markdown('<span style="color:green"> <b>🟢2번</b> 클러스터 정보보기</span>', unsafe_allow_html=True)
+        st.data_editor(df_sorted[df_sorted["클러스터"]==2].drop(columns=["위도", "경도","클러스터","동별","구별"]),hide_index=True)
+        st.markdown('<span style="color:purple"> <b>🟣3번</b> 클러스터 정보보기</span>', unsafe_allow_html=True)
+        st.data_editor(df_sorted[df_sorted["클러스터"]==3].drop(columns=["위도", "경도","클러스터","동별","구별"]),hide_index=True)
 
-        if view_option == menu2[0]:
-            st.subheader(f"📍 병원 클러스터링된 지역 보기 (클러스터 {n_clusters}개)")
-
-            st.dataframe(df[["지역명", "반려동물수", "병원수", "병원당_반려동물수", "클러스터"]].astype({"병원당_반려동물수": int}))
-            
-        elif view_option == menu2[1]:
-            st.subheader(f"📍 약국 클러스터링된 지역 보기 (클러스터 {n_clusters}개)")
-            st.dataframe(df[["지역명", "반려동물수", "약국수","약국당_반려동물수", "클러스터"]].astype({"약국당_반려동물수": int})) 
+        # 클러스터별 통계
+        st.subheader("📊 클러스터별 평균")
         
+        # 클러스터별 평균값 계산
+        cluster_avg = df.groupby("클러스터")[["동물소유자수", "반려동물수", "병원수", "약국수", "병원당_반려동물수", "약국당_반려동물수"]].mean().astype(int).reset_index()
 
+        st.data_editor(cluster_avg,hide_index=True)
+
+        st.subheader("📊 클러스터링 분석")
+        st.text("반려동물 가구는 반려동물과 동물 소유자수를 합친 값입니다.")
+        strategy_data = {
+        "클러스터": [0, 1, 2, 3],
+        "특징": [
+            "소규모 반려동물 가구 지역",
+            "대규모 반려동물 가구 지역, 병원 인프라 양호하지만 부족",
+            "중규모 반려동물 가구 지역, 병원·약국 인프라 부족",
+            "중대형 반려동물 가구 지역, 중간 수준 인프라"
+        ],
+        "병원 부족 여부": ["❌ (부족하지 않음)", "✅ (부족함)", "✅ (부족함)", "⚠️ (일부 부담)"],
+        "추가 병원 개설 필요성": ["❌ (필요 없음)", "✅ (확장 필요)", "✅ (추가 필요)", "⚠️ (확장 고려)"]
+    }
+
+            # 데이터프레임 생성
+        strategy_df = pd.DataFrame(strategy_data)
+
+        # 전략 표 출력
+        st.data_editor(strategy_df,hide_index=True)
         st.markdown(
         """
         <div style="
             background-color: #dff0d8; 
-            padding: 15px; 
+            padding: 15px;  ㄴ
             border-radius: 10px;
             border: 1px solid #c3e6cb;">
         
-        #### 🐶활용제안:  
-        KMeans 알고리즘을 활용하여 성남시의 반려동물 인프라를 클러스터링한 결과입니다.</br>
-        수치로 보는 인프라부족지역 메뉴와 함께 **클러스터링 결과를 참고하여 부족한 지역을 확인**해보세요.
+        #### 🐶클러스터별 활용제안:  
+        ✅ **클러스터 1과 2는 추가 병원,약국 개설이 가장 필요한 것 으로 보입니다.**  
+        ✅ **클러스터 3도 일부 지역에서는 병원,약국 부족 현상이 발생할 가능성이 있습니다.**  
+        ✅ **클러스터 0은 병원,약국 개설 필요성이 낮아보입니다.**  
 
+        Kmeans 분석결과를 토대로 추가적인 인프라 확충이 필요한 지역을 파악해보세요.
         
-
-
         </div>
         """,
         unsafe_allow_html=True
@@ -171,7 +189,13 @@ def run_prediction():
 
     elif selected_analysis == menu[2]:
             st.subheader("📍 병원 및 약국 부족 지역 분석")
-            st.info("병원/약국 부족 상위 10개지역을 지도에서 확인해보세요.")
+            st.text("병원과 약국이 부족한 상위 10개 지역과 K-Means 클러스터링 결과를 함께 분석하여 최적의 입지를 고려해보세요.")
+            st.info(
+            "📌 병원과 약국 당 반려동물 밀도 분석은 다음 공식을 사용하여 계산했습니다:\n"
+            '```python\n'
+            'df["병원당_반려동물수"] = df["반려동물수"] / (df["병원수"] + 1)\n'
+            '```'
+        )
 
             view_option = st.radio("🔎 어떤 부족 지역을 보시겠습니까?", ["병원 부족 지역", "약국 부족 지역"])
             
@@ -218,7 +242,7 @@ def run_prediction():
 
                 folium_static(map_hospital)
                 st.subheader("📍 병원이 부족한 상위 10개 지역")
-                st.write(top_needy_hospital[["지역명", "반려동물수", "병원수", "병원당_반려동물수"]])
+                st.data_editor(top_needy_hospital[["지역명", "반려동물수", "병원수", "병원당_반려동물수"]],hide_index=True)
             
             elif view_option == "약국 부족 지역":
 
@@ -263,4 +287,4 @@ def run_prediction():
 
                 folium_static(map_pharmacy)
                 st.subheader("📍 약국이 부족한 상위 10개 지역")
-                st.write(top_needy_pharmacy[["지역명", "반려동물수", "약국수", "약국당_반려동물수"]])
+                st.data_editor(top_needy_pharmacy[["지역명", "반려동물수", "약국수", "약국당_반려동물수"]],hide_index=True)
