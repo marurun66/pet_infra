@@ -8,7 +8,6 @@ from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from folium.plugins import MarkerCluster 
-import seaborn as sb
 
 
 import os
