@@ -36,8 +36,6 @@ def run_prediction():
     df = pd.read_csv("data/merged_data.csv")
     #유저친화적으로 클러스터 0,1,2,3 대신 1,2,3,4로 변경
     df['클러스터'] = df['클러스터'] + 1
-    # 모델 불러오기
-    kmeans_loaded = joblib.load('models/kmeans_model.pkl')
 
     
     # 성남시 행정동 GeoJSON 불러오기
@@ -100,7 +98,7 @@ def run_prediction():
         
         marker_cluster = MarkerCluster().add_to(m)
         
-        for idx, row in df.iterrows():
+        for _, row in df.iterrows():
             recommendation = "🌟입지추천🌟" if row["클러스터"] in [2, 3] else "⚠️신중한 선택필요⚠️"
             folium.Marker(
                 location=[row['위도'], row['경도']],
@@ -132,14 +130,26 @@ def run_prediction():
         folium_static(m)
 
         df_sorted = df.sort_values(by="클러스터").reset_index(drop=True)
+
         st.markdown('<span style="color:red">🔴 <b>1번</b> 클러스터 정보보기</span>', unsafe_allow_html=True)
-        st.data_editor(df_sorted[df_sorted["클러스터"]==1].drop(columns=["위도", "경도","클러스터","동별","구별"]),hide_index=True)
+        df_1 = df_sorted[df_sorted["클러스터"] == 1].drop(columns=["위도", "경도", "클러스터", "동별", "구별"])
+        df_1[df_1.select_dtypes(include="float").columns] = df_1.select_dtypes(include="float").astype(int)
+        st.data_editor(df_1, hide_index=True)
+
         st.markdown('<span style="color:blue"> <b>🔵 2번</b> 클러스터 정보보기</span>', unsafe_allow_html=True)
-        st.data_editor(df_sorted[df_sorted["클러스터"]==2].drop(columns=["위도", "경도","클러스터","동별","구별"]),hide_index=True)
+        df_2 = df_sorted[df_sorted["클러스터"] == 2].drop(columns=["위도", "경도", "클러스터", "동별", "구별"])
+        df_2[df_2.select_dtypes(include="float").columns] = df_2.select_dtypes(include="float").astype(int)
+        st.data_editor(df_2, hide_index=True)
+
         st.markdown('<span style="color:green"> <b>🟢 3번</b> 클러스터 정보보기</span>', unsafe_allow_html=True)
-        st.data_editor(df_sorted[df_sorted["클러스터"]==3].drop(columns=["위도", "경도","클러스터","동별","구별"]),hide_index=True)
+        df_3 = df_sorted[df_sorted["클러스터"] == 3].drop(columns=["위도", "경도", "클러스터", "동별", "구별"])
+        df_3[df_3.select_dtypes(include="float").columns] = df_3.select_dtypes(include="float").astype(int)
+        st.data_editor(df_3, hide_index=True)
+
         st.markdown('<span style="color:purple"> <b>🟣 4번</b> 클러스터 정보보기</span>', unsafe_allow_html=True)
-        st.data_editor(df_sorted[df_sorted["클러스터"]==4].drop(columns=["위도", "경도","클러스터","동별","구별"]),hide_index=True)
+        df_4 = df_sorted[df_sorted["클러스터"] == 4].drop(columns=["위도", "경도", "클러스터", "동별", "구별"])
+        df_4[df_4.select_dtypes(include="float").columns] = df_4.select_dtypes(include="float").astype(int)
+        st.data_editor(df_4, hide_index=True)
 
         # 클러스터별 통계
         st.subheader("📊 클러스터별 평균")
@@ -156,12 +166,12 @@ def run_prediction():
         "클러스터": [1,2,3,4],
         "특징": [
             "소규모 반려동물 가구 지역",
-            "대규모 반려동물 가구 지역, 병원 인프라도 많은편이나 수요가 더 있을것으로 보여짐",
+            "대규모 반려동물 가구 지역, 수요가 더 있을것으로 보여짐",
             "중규모 반려동물 가구 지역, 병원·약국 인프라 부족",
             "중대형 반려동물 가구 지역, 중간 수준 인프라"
         ],
-        "병원 부족 여부": ["❌ (부족하지 않음)", "✅ (부족함)", "✅ (부족함)", "⚠️ (일부 부담)"],
-        "추가 병원 개설 필요성": ["❌ (필요 없음)", "✅ (확장 필요)", "✅ (추가 필요)", "⚠️ (확장 고려)"]
+        "병원/약국 부족 여부": ["❌ (부족하지 않음)", "✅ (부족함)", "✅ (부족함)", "⚠️ (일부 부담)"],
+        "추가 병원/약국 개설 필요성": ["❌ (필요 없음)", "✅ (확장 필요)", "✅ (추가 필요)", "⚠️ (확장 고려)"]
     }
 
             # 데이터프레임 생성
@@ -276,7 +286,7 @@ def run_prediction():
                         icon=folium.DivIcon(html=f'<div style="font-size: 10pt; font-weight: bold; color: black; background-color: rgba(255, 255, 255, 0.0); padding: 2px; border-radius: 3px; display: inline-block; white-space: nowrap;">{row["dong_name"]}</div>')
                     ).add_to(map_pharmacy)
 
-                for idx, row in top_needy_pharmacy.iterrows():
+                for _, row in top_needy_pharmacy.iterrows():
                     folium.CircleMarker(
                         location=[row["위도"], row["경도"]],
                         radius=20,
