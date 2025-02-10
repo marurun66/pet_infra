@@ -103,7 +103,7 @@ def run_prediction():
         for idx, row in df.iterrows():
             folium.Marker(
                 location=[row['위도'], row['경도']],
-                popup=folium.Popup(f'<div style="white-space: nowrap;">클러스터: {row["클러스터"]}<br>동 이름: {row["지역명"]}</div>', max_width=300),
+                popup=folium.Popup(f'<div style="white-space: nowrap;">클러스터: {row["클러스터"]}<br>동 이름: {row["지역명"]}<br> 병원 수: {int(row["병원수"])}<br>약국 수: {int(row["약국수"])}<br></div>', max_width=300),
                 icon=folium.Icon(color=cluster_colors.get(row['클러스터'], 'medkit'))
             ).add_to(marker_cluster)
         
